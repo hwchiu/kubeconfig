@@ -1,20 +1,26 @@
 package kubeconfig
 
 import (
-	"bitbucket.org/linkernetworks/aurora/src/env"
-	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
 	"os"
 	"path/filepath"
+
+	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/clientcmd"
 )
 
-// FindConfig finds the .kube/config file from user's $HOME
+func homeDir() string {
+	if h := os.Getenv("HOME"); h != "" {
+		return h
+	}
+	return os.Getenv("USERPROFILE")
+}
+
 func FindConfig() (string, bool) {
 	if p, ok := os.LookupEnv("KUBECONFIG"); ok {
 		return p, true
 	}
 
-	if home := env.HomeDir(); home != "" {
+	if home := homeDir(); home != "" {
 		p := filepath.Join(home, ".kube", "config")
 		_, err := os.Stat(p)
 		if err != nil {
